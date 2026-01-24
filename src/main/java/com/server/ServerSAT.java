@@ -26,11 +26,17 @@ public class ServerSAT {
             SSLServerSocket serverSocket = (SSLServerSocket) factory.createServerSocket(PORT);
 
             while(true){
-                
+                SSLSocket socket = (SSLSocket) serverSocket.accept();
+                System.out.println("Cliente SSL conectado: "+ socket.getInetAddress().getHostAddress());
+                //Salida de datos, para enviar mensajes al cliente, auto-flush, UTF-8 (para caracteres especiales en español)
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+                out.println("CONECTADO");
+                socket.close();
+
             }
             
         }catch(Exception e){
-            e.printStackTrace();
+            System.out.println("Error Servirdor SSL: "+ e.getMessage());
         }
 
     }
