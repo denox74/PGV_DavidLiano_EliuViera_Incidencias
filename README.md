@@ -23,9 +23,15 @@ Cliente debe: conexión parametrizable, manejar rechazo, hacer LOGIN, mostrar me
 \server\ClientHandler.java (Clase para el manejo de los hilos de los clientes)
 
 ## Generación de la llave
-cd "src/main/resources"
-keytool -genkeypair -alias servidorpgvsat -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore servidor-keystore.p12 -storepass servidorpgvsat -keypass servidorpgvsat -dname "CN=localhost, OU=PGV, O=PGV, L=Canarias, C=ES"
+* Generar la llave
+* cd "src/main/resources"
+* keytool -genkeypair -alias servidorpgvsat -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore servidor-keystore.p12 -storepass servidorpgvsat -keypass servidorpgvsat -dname "CN=localhost, OU=PGV, O=PGV, L=Canarias, C=ES"
 
+* Exportar certificado
+* keytool -exportcert -alias servidorpgvsat -keystore servidor-keystore.p12 -storepass servidorpgvsat -rfc -file servidorpgvsat.cer
+
+* Generar el truststore
+* keytool -importcert -alias servidorpgvsat -file servidorpgvsat.cer -storetype PKCS12 -keystore cliente-truststore.p12 -storepass servidorpgvsat -noprompt
 
 ## Protocolo de Comandos
 
