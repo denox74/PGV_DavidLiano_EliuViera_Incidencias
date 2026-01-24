@@ -1,12 +1,12 @@
-package com;
+package com.model;
 
 // Clase para representar una incidencia. ID y descripción. 
 
-public class Incidencia {
+public class Incidence {
     private final int id;
     private final String descripcion;
 
-    public Incidencia(int id, String descripcion) {
+    public Incidence(int id, String descripcion) {
         this.id = id;
         this.descripcion = descripcion;
     }
