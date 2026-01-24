@@ -20,9 +20,8 @@ public class ServerSAT {
         System.setProperty("javax.net.ssl.keyStorePassword", "servidorpgvsat");
         System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
 
+        Semaphore semaphore = new Semaphore(MAX_CLIENTS, true);
         System.out.println("ServidAT (SSL) arrancado en puerto" + PORT);
-
-        Semaphore semaphore = new Semaphore(MAX_CLIENTS);
 
         try {
             SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
@@ -32,23 +31,21 @@ public class ServerSAT {
                 SSLSocket socket = (SSLSocket) serverSocket.accept();
 
                 if (!semaphore.tryAcquire()) {
-                    System.out.println("Servidor lleno. Rechazando conexion.");
                     PrintWriter out = new PrintWriter(
-                            new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+                            new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
+                            true
+                    );
                     out.println("Servidor lleno, vuelva a intentarlo mas tarde");
                     socket.close();
                     continue;
                 }
 
                 System.out.println("Cliente SSL conectado: " + socket.getInetAddress().getHostAddress());
-                ClientHandler handler = new ClientHandler(socket, semaphore);
-                new Thread(handler).start();
-
+                new Thread(new ClientHandler(socket, semaphore)).start();
             }
 
         } catch (Exception e) {
-            System.out.println("Error Servirdor SSL: " + e.getMessage());
+            System.out.println("Error Servidor SSL: " + e);
         }
-
     }
 }
