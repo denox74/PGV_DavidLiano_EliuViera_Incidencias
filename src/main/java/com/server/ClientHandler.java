@@ -20,17 +20,22 @@ public class ClientHandler implements Runnable {
     private int idClient;
 
     private ClientConnected clientInfo;
-    private Map<Integer, ClientConnected> clients;
-    private List<Incidence> incidences;
+    private final Map<Integer, ClientConnected> clients;
+    private final List<Incidence> incidences;
     // AtomicInteger para generar IDs únicos, recomendado para entornos multi-hilo.
-    private AtomicInteger idIncidence;
+    private final AtomicInteger idIncidence;
 
     private String user = null;
     private Role role = null;
 
-    public ClientHandler(SSLSocket socket, Semaphore semaforo) {
+    public ClientHandler(SSLSocket socket, Semaphore semaforo, int idClient, Map<Integer, ClientConnected> clients,
+            List<Incidence> incidences, AtomicInteger idIncidence) {
         this.socket = socket;
         this.semaphore = semaforo;
+        this.idClient = idClient;
+        this.clients = clients;
+        this.incidences = incidences;
+        this.idIncidence = idIncidence;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class ClientHandler implements Runnable {
                         new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
 
         ) {
-            out.println("CONECTADO");
+            out.println("CONECTADO, Cliente ID: " + idClient);
             // Sesión minima, esperar hasta que el cliente se desconecte (SALIR)
             String line;
             while ((line = in.readLine()) != null) {
