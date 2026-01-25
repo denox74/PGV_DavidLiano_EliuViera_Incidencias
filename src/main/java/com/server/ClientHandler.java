@@ -1,6 +1,9 @@
 package com.server;
 
 import javax.net.ssl.SSLSocket;
+
+import com.model.ClientConnected;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Semaphore;
@@ -9,6 +12,10 @@ import java.util.concurrent.Semaphore;
 public class ClientHandler implements Runnable {
     private final SSLSocket socket;
     private final Semaphore semaphore;
+    private int idClient;
+
+    private ClientConnected clientInfo;
+
 
     public ClientHandler(SSLSocket socket, Semaphore semaforo) {
         this.socket = socket;
