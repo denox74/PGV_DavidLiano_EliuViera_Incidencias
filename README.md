@@ -21,6 +21,8 @@ Cliente debe: conexión parametrizable, manejar rechazo, hacer LOGIN, mostrar me
 \util\Normalizer.java (Clase para la normalización de los comandos)
 \security\Auth.java (Clase para la autenticación)
 \server\ClientHandler.java (Clase para el manejo de los hilos de los clientes)
+\model\Role.java (Enum para los roles de usuario)
+\model\State.java (Enum para los estados de las incidencias)
 
 ## Generación de la llave
 * Generar la llave
