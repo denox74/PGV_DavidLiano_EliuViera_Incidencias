@@ -64,7 +64,15 @@ public class AuthService {
         if ("tecnico".equals(user) && "tecnico123".equals(password)) {
             result.login = true;
             result.user = "tecnico";
-            result.rol = "TECNICO";
+            result.rol = "TECHNICIAN";
+            result.token = generateToken();
+            return result;
+        }
+         //CREAMOS AL CLIENTE 
+        if ("cliente".equals(user) && "cliente123".equals(password)) {
+            result.login = true;
+            result.user = "tecnico";
+            result.rol = "CLIENT";
             result.token = generateToken();
             return result;
         }
