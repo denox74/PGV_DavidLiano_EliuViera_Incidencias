@@ -26,6 +26,9 @@ public class Incidence {
     public String getDescription() {
         return description;
     }
+      public void setDescription(String description) {
+        this.description = description;
+    }
 
     public State getState() {
         return state;
@@ -46,4 +49,6 @@ public class Incidence {
     public void setUserIncidence(String userIncidence) {
         this.userIncidence = userIncidence;
     }
+
+  
 }
