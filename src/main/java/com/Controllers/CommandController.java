@@ -1,9 +1,8 @@
 package com.Controllers;
 
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import com.model.ClientConnected;
 import com.model.Incidence;
 import com.model.Role;
@@ -12,10 +11,11 @@ import com.model.State;
 public class CommandController {
 
     private final AtomicInteger idIncidencia;
-    private final Map<Integer, ClientConnected> client;
+    private final ConcurrentHashMap<Integer, ClientConnected> client;
     private final List<Incidence> incidencesList;
 
-    public CommandController(Map<Integer, ClientConnected> client, AtomicInteger idIncidencia, List<Incidence> incidencesList) {
+    public CommandController(ConcurrentHashMap<Integer, ClientConnected> client, AtomicInteger idIncidencia,
+            List<Incidence> incidencesList) {
         this.client = client;
         this.idIncidencia = idIncidencia;
         this.incidencesList = incidencesList;
@@ -28,7 +28,8 @@ public class CommandController {
      */
     public String processCommand(String command, String user, Role role) {
 
-        // la expresion \\s+, 2 es para separar uno o mas espacios en blanco con un limite de division de 2 partes
+        // la expresion \\s+, 2 es para separar uno o mas espacios en blanco con un
+        // limite de division de 2 partes
         String[] part = command.toUpperCase().split("\\s+", 2);
         String cmd = part[0];
         /**
@@ -98,8 +99,7 @@ public class CommandController {
                         inc.getId(),
                         inc.getDescription(),
                         inc.getUserIncidence(),
-                        inc.getDateTime()
-                ));
+                        inc.getDateTime()));
             }
             return sb.toString();
         }
@@ -143,52 +143,52 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
 
-        public String cmdClients(Role role){
+    public String cmdClients(Role role) {
 
-            synchronized (client) {
-                if(role != Role.ADMIN){
-                    return "< - Permiso denegado - > \n  < - Los administradores estan autorizados para ver los clientes - > ";
-                }
-                if(client.isEmpty()) return "< - No hay clientes conectados - >";
-                
-                StringBuilder sb = new StringBuilder("<--Clientes Conectados-->");
-                for(ClientConnected cc : client.values()){
-                    sb.append(String.format("[ID:%d] Usuario: %s\n",
-                        cc.getId(),
-                        cc.getName()
-                    ));
-                   
-                }
-                 return sb.toString();
-            
+        synchronized (client) {
+            if (role != Role.ADMIN) {
+                return "< - Permiso denegado - > \n  < - Los administradores estan autorizados para ver los clientes - > ";
             }
+            if (client.isEmpty())
+                return "< - No hay clientes conectados - >";
+
+            StringBuilder sb = new StringBuilder("<--Clientes Conectados-->");
+            for (ClientConnected cc : client.values()) {
+                sb.append(String.format("[ID:%d] Usuario: %s\n",
+                        cc.getId(),
+                        cc.getName()));
+
+            }
+            return sb.toString();
 
         }
-    
+
+    }
+
     /**
      * --------------------------------------------------------------------------------------
      * REALIZAMOS LA FUNCIÓN PARA CERRAR LA INCIDENCIA CREADA
      * --------------------------------------------------------------------------------------
      */
 
-    public String cmdCerrar(String[] parts){
+    public String cmdCerrar(String[] parts) {
 
         try {
 
             int id = Integer.valueOf(parts[1].trim());
 
             synchronized (incidencesList) {
-                for(Incidence inc : incidencesList){
-                    if(inc.getId() == id){
+                for (Incidence inc : incidencesList) {
+                    if (inc.getId() == id) {
                         inc.setState(State.CLOSED);
                     }
                     return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
 
                 }
-                
+
             }
             return "No se a podido encontrar la incidencia : " + id;
-            
+
         } catch (NumberFormatException e) {
             return "El ID tiene que ser númerico";
         }

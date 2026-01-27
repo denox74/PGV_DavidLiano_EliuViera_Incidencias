@@ -6,7 +6,15 @@ import javax.net.ssl.SSLSocket;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.model.ClientConnected;
+import com.model.Incidence;
 
 public class ServerSAT {
 
@@ -15,13 +23,30 @@ public class ServerSAT {
 
     public static void main(String[] args) {
 
-        // Ponemos las Kestores del servidor
+        /**
+         * ---------------------------------------------------------------------------
+         * PONEMOS LAS KEYSTORES DEL SERVIDOR
+         * ---------------------------------------------------------------------------
+         */
+
         System.setProperty("javax.net.ssl.keyStore", "src/main/resources/servidor-keystore.p12");
         System.setProperty("javax.net.ssl.keyStorePassword", "servidorpgvsat");
         System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
 
         Semaphore semaphore = new Semaphore(MAX_CLIENTS, true);
-        System.out.println("ServidAT (SSL) arrancado en puerto" + PORT);
+
+        /**
+         * ---------------------------------------------------------------------------
+         * ESTRUCTURAS COMPARTIDAS ENTRE TODOS LOS HILOS DE CLIENTES
+         * ---------------------------------------------------------------------------
+         */
+
+        ConcurrentHashMap<Integer, ClientConnected> clients = new ConcurrentHashMap<>();
+        List<Incidence> incidences = new ArrayList<>();
+        AtomicInteger idIncidence = new AtomicInteger(1); // CONTADOR PARA ID DE INCIDENCIAS EMPEZANDO POR 1
+        AtomicInteger idClientCounter = new AtomicInteger(1); // CONTADOR PARA ID DE CLIENTES EMPEZANDO POR 1
+
+        System.out.println("ServidAT (SSL) arrancado en puerto " + PORT);
 
         try {
             SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
@@ -33,15 +58,29 @@ public class ServerSAT {
                 if (!semaphore.tryAcquire()) {
                     PrintWriter out = new PrintWriter(
                             new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
-                            true
-                    );
+                            true);
                     out.println("Servidor lleno, vuelva a intentarlo mas tarde");
                     socket.close();
                     continue;
                 }
 
+                /**
+                 * ---------------------------------------------------------------------------
+                 * ASIGNAMOS UN ID ÚNICO A CADA CLIENTE
+                 * ---------------------------------------------------------------------------
+                 */
+
+                int idClient = idClientCounter.getAndIncrement();
+
                 System.out.println("Cliente SSL conectado: " + socket.getInetAddress().getHostAddress());
-                new Thread(new ClientHandler(socket, semaphore, MAX_CLIENTS, clients, incidences, idIncidence));
+                /**
+                 * ---------------------------------------------------------------------------
+                 * CREAMOS Y INICIAMOS EL HILO DEL CLIENTE
+                 * ---------------------------------------------------------------------------
+                 */
+                Thread clientThread = new Thread(
+                        new ClientHandler(socket, semaphore, idClient, clients, incidences, idIncidence));
+                clientThread.start();
             }
 
         } catch (Exception e) {

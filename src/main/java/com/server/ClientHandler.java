@@ -8,11 +8,10 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.net.ssl.SSLSocket;
-
 import com.Controllers.CommandController;
 import com.model.ClientConnected;
 import com.model.Incidence;
@@ -27,7 +26,7 @@ public class ClientHandler implements Runnable {
     private int idClient;
 
     private ClientConnected clientInfo;
-    private final Map<Integer, ClientConnected> clients;
+    private final ConcurrentHashMap<Integer, ClientConnected> clients;
     private final List<Incidence> incidences;
     // AtomicInteger para generar IDs únicos, recomendado para entornos multi-hilo.
     private final AtomicInteger idIncidence;
@@ -37,7 +36,8 @@ public class ClientHandler implements Runnable {
     private String user = null;
     private Role role = null;
 
-    public ClientHandler(SSLSocket socket, Semaphore semaforo, int idClient, Map<Integer, ClientConnected> clients,
+    public ClientHandler(SSLSocket socket, Semaphore semaforo, int idClient,
+            ConcurrentHashMap<Integer, ClientConnected> clients,
             List<Incidence> incidences, AtomicInteger idIncidence) {
         this.socket = socket;
         this.semaphore = semaforo;
@@ -57,7 +57,8 @@ public class ClientHandler implements Runnable {
     public void run() {
         try (
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)); PrintWriter out = new PrintWriter(
+                        new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                PrintWriter out = new PrintWriter(
                         new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);) {
             out.println("CONECTADO, Cliente ID: " + idClient);
             /**
@@ -65,7 +66,7 @@ public class ClientHandler implements Runnable {
              * AUTENTIFICAMOS AL CLIENTE
              * --------------------------------------------------------------------------------
              */
-            if(!authentication(in, out)){
+            if (!authentication(in, out)) {
                 out.println("Error al autentificarse");
                 return;
             }
@@ -99,7 +100,7 @@ public class ClientHandler implements Runnable {
                 if (line.trim().equalsIgnoreCase("SALIR")) {
                     System.out.println("Cliente desconectado");
                     break;
-                } 
+                }
             }
 
         } catch (Exception e) {
@@ -119,14 +120,14 @@ public class ClientHandler implements Runnable {
      * --------------------------------------------------------------------------------------------------
      */
     public Boolean authentication(BufferedReader in, PrintWriter out) throws IOException {
-        //COMPROBAMOS EL USUARIO 
+        // COMPROBAMOS EL USUARIO
         out.println("<LOGIN> : Usuario");
         String usuario = in.readLine();
         if (usuario == null) {
             return false;
         }
 
-        //COMPROBAMOS LA CONTRASEÑA
+        // COMPROBAMOS LA CONTRASEÑA
         out.println("<LOGIN> : Password");
         String pass = in.readLine();
         if (pass == null) {
