@@ -24,7 +24,7 @@ public class AuthService {
         private String token;
         private String error;
         private String rawBody;
-
+        
     }
 
     /**
