@@ -1,5 +1,7 @@
 package com.security;
 
+import com.model.Role;
+
 public class AuthService {
 
     /**
@@ -20,10 +22,39 @@ public class AuthService {
 
         private boolean login;
         private String user;
-        private String rol;
+        private Role rol;
         private String token;
         private String error;
         private String rawBody;
+
+        public boolean isLogin() {
+            return login;
+        }
+
+        public void setLogin(boolean login) {
+            this.login = login;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(String user) {
+            this.user = user;
+        }
+
+        public Role getRol() {
+            return rol;
+        }
+
+        public void setRol(Role rol) {
+            this.rol = rol;
+        }
+        
+
+      
+
+      
         
     }
 
@@ -55,7 +86,7 @@ public class AuthService {
         if ("admin".equals(user) && "admin123".equals(password)) {
             result.login = true;
             result.user = "admin";
-            result.rol = "ADMIN";
+            result.rol = Role.ADMIN;
             result.token = generateToken();
             return result;
         }
@@ -64,7 +95,7 @@ public class AuthService {
         if ("tecnico".equals(user) && "tecnico123".equals(password)) {
             result.login = true;
             result.user = "tecnico";
-            result.rol = "TECHNICIAN";
+            result.rol = Role.TECHNICIAN;
             result.token = generateToken();
             return result;
         }
@@ -72,7 +103,7 @@ public class AuthService {
         if ("cliente".equals(user) && "cliente123".equals(password)) {
             result.login = true;
             result.user = "tecnico";
-            result.rol = "CLIENT";
+            result.rol = Role.CLIENT;
             result.token = generateToken();
             return result;
         }
