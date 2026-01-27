@@ -41,7 +41,7 @@ public class ServerSAT {
                 }
 
                 System.out.println("Cliente SSL conectado: " + socket.getInetAddress().getHostAddress());
-                new Thread(new ClientHandler(socket, semaphore)).start();
+                new Thread(new ClientHandler(socket, semaphore, MAX_CLIENTS, clients, incidences, idIncidence));
             }
 
         } catch (Exception e) {
