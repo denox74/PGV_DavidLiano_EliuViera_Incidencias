@@ -1,0 +1,11 @@
+{
+    "incidences": [
+        {
+            "id": 1,
+            "description": "Incidencia 1",
+            "state": "OPEN",
+            "userIncidence": "admin",
+            "dateTime": "2026-01-28T19:34:11.123456789"
+        }
+    ]
+}

@@ -136,6 +136,22 @@ public class ClientSAT {
                     System.out.println("Servidor ha cerrado la conexión.");
                     break;
                 }
+
+                // Si el servidor está pidiendo la descripción de forma interactiva
+                if (resp.contains("Ingrese la descripción")) {
+                    // System.out.println("Servidor: " + resp);
+                    System.out.print("Descripción > ");
+                    String description = sc.nextLine();
+                    out.println(description);
+
+                    // Leer la respuesta final del servidor
+                    resp = in.readLine();
+                    if (resp == null) {
+                        System.out.println("Servidor ha cerrado la conexión.");
+                        break;
+                    }
+                }
+
                 System.out.println("Servidor: " + resp);
 
                 if ("SALIR".equalsIgnoreCase(userInput)) {

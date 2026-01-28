@@ -103,7 +103,22 @@ public class ClientHandler implements Runnable {
             while ((line = in.readLine()) != null) {
                 // INSTANCIAMOS TODAS LAS FUNCIONES DEL CLIENTE DESDE EL CONTROLLADOR
                 String cmd = controller.processCommand(line.trim(), user, role);
-                out.println(cmd);
+
+                // Si el comando requiere una descripción interactiva
+                if ("PROMPT_DESCRIPTION".equals(cmd)) {
+                    out.println("Ingrese la descripción de la incidencia:");
+                    String description = in.readLine();
+
+                    if (description != null && !description.trim().isEmpty()) {
+                        // Procesar ALTA con la descripción proporcionada
+                        cmd = controller.processCommand("ALTA " + description.trim(), user, role);
+                        out.println(cmd);
+                    } else {
+                        out.println("Error: Descripción vacía. Incidencia no creada.");
+                    }
+                } else {
+                    out.println(cmd);
+                }
 
                 if (line.trim().equalsIgnoreCase("SALIR")) {
                     System.out.println("Cliente desconectado");

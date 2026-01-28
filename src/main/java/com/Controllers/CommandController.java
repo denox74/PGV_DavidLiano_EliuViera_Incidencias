@@ -74,14 +74,16 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
     public String cmdAlta(String[] parts, String user) {
+        // Si no se proporcionó descripción, solicitar al cliente
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            return "Error: Debe proporcionar una descripción para el alta. Uso: ALTA <descripción>";
+            return "PROMPT_DESCRIPTION";
         }
+
+        String description = normalizer.normalizerDescription(parts[1].trim());
 
         synchronized (incidencesList) {
             int newId = idIncidencia.incrementAndGet();
-
-            Incidence newIncidence = new Incidence(newId, parts[1].trim());
+            Incidence newIncidence = new Incidence(newId, description);
             newIncidence.setUserIncidence(user);
             incidencesList.add(newIncidence);
             return " <- Incidencia con número : " + newId + " Creada correctamente -> ";
