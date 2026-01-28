@@ -133,10 +133,10 @@ public class ClientSAT {
 
                 // Leer respuestas del servidor hasta el marcador de fin
                 String resp;
-                boolean isPromptingDescription = false;
+                boolean isDescription = false;
 
                 while ((resp = in.readLine()) != null) {
-                    if (resp.equals("___FIN___")) {
+                    if (resp.equals("FIN")) {
                         break;
                     }
 
@@ -146,11 +146,11 @@ public class ClientSAT {
                         System.out.print("Descripción > ");
                         String description = sc.nextLine();
                         out.println(description);
-                        isPromptingDescription = true;
+                        isDescription = true;
 
                         // Leer la respuesta final después de enviar la descripción
                         while ((resp = in.readLine()) != null) {
-                            if (resp.equals("___FIN___")) {
+                            if (resp.equals("FIN")) {
                                 break;
                             }
                             System.out.println("Servidor: " + resp);
