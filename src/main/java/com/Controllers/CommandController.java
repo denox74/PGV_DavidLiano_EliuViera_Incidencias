@@ -33,18 +33,20 @@ public class CommandController {
         this.incidencesList = incidencesList;
         this.normalizer = new Normalizer();
 
-        // Configurar Jackson
+        // CONFIGURAR JACKSON
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        // Cargar incidencias al iniciar
+        // CARGA LAS INCIDENCIAS AL INICIAR
         loadIncidences();
     }
 
     /**
-     * Carga las incidencias desde el archivo JSON
+     * ------------------------------------------------------------------------------------
+     * CARGA LAS INCIDENCIAS DESDE EL ARCHIVO JSON
+     * ------------------------------------------------------------------------------------
      */
     private void loadIncidences() {
         File file = new File(DATA_JSON_PATH);
@@ -56,7 +58,7 @@ public class CommandController {
                     incidencesList.clear();
                     incidencesList.addAll(loaded);
 
-                    // Ajustar el contador de IDs al máximo encontrado
+                    // AJUSTAR EL CONTADOR DE IDs AL MAXIMO ENCONTRADO
                     int maxId = 0;
                     for (Incidence inc : loaded) {
                         if (inc.getId() > maxId) {
@@ -73,7 +75,9 @@ public class CommandController {
     }
 
     /**
-     * Guarda las incidencias en el archivo JSON
+     * ------------------------------------------------------------------------------------
+     * GUARDA LAS INCIDENCIAS CREADAS EN EL ARCHIVO JSON
+     * ------------------------------------------------------------------------------------
      */
     private void saveIncidences() {
         try {
@@ -92,8 +96,9 @@ public class CommandController {
      */
     public String processCommand(String command, String user, Role role) {
 
-        // la expresion \\s+, 2 es para separar uno o mas espacios en blanco con un
-        // limite de division de 2 partes
+        // LA EXPRESIÓN \\S+ ES PARA SEPARAR UNO O MAS ESPACIOS EN BLANCO CON UN LIMITE
+        // DE
+        // DIVISIÓN DE 2 PARTES
         String[] part = command.trim().toUpperCase().split("\\s+", 2);
         String cmd = part[0];
         /**
@@ -118,6 +123,7 @@ public class CommandController {
 
             case "CERRAR":
                 return cmdCerrar(part);
+
             case "SALIR":
                 return "Desconectando .....";
 
@@ -148,7 +154,7 @@ public class CommandController {
             newIncidence.setUserIncidence(user);
             incidencesList.add(newIncidence);
 
-            saveIncidences(); // Guardar cambios
+            saveIncidences(); // GUARDAR CAMBIOS
 
             return " <- Incidencia con número : " + newId + " Creada correctamente -> ";
         }
@@ -204,7 +210,7 @@ public class CommandController {
                     if (inc.getId() == id) {
                         // NORMALIZAMOS ANTES DE GUARDAR LA NUEVA DESCRIPCION
                         inc.setDescription(normalizer.normalizerDescription(newDetails));
-                        saveIncidences(); // Guardar cambios
+                        saveIncidences(); // GUARDAR CAMBIOS
                         return "<- Incidencia :" + id + " modificada correctamente - >";
                     }
                 }
@@ -261,7 +267,7 @@ public class CommandController {
                 for (Incidence inc : incidencesList) {
                     if (inc.getId() == id) {
                         inc.setState(State.CLOSED);
-                        saveIncidences(); // Guardar cambios
+                        saveIncidences(); // GUARDAR CAMBIOS
                         return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
                     }
                 }
