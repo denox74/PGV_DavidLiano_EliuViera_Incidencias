@@ -1,8 +1,16 @@
 package com.Controllers;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import com.model.ClientConnected;
 import com.model.Incidence;
 import com.model.Role;
@@ -15,6 +23,8 @@ public class CommandController {
     private final ConcurrentHashMap<Integer, ClientConnected> client;
     private final List<Incidence> incidencesList;
     private final Normalizer normalizer;
+    private static final String DATA_JSON_PATH = "src/main/java/com/json/data.json";
+    private final ObjectMapper objectMapper;
 
     public CommandController(ConcurrentHashMap<Integer, ClientConnected> client, AtomicInteger idIncidencia,
             List<Incidence> incidencesList) {
@@ -22,6 +32,57 @@ public class CommandController {
         this.idIncidencia = idIncidencia;
         this.incidencesList = incidencesList;
         this.normalizer = new Normalizer();
+
+        // Configurar Jackson
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        // Cargar incidencias al iniciar
+        loadIncidences();
+    }
+
+    /**
+     * Carga las incidencias desde el archivo JSON
+     */
+    private void loadIncidences() {
+        File file = new File(DATA_JSON_PATH);
+        if (file.exists() && file.length() > 0) {
+            try {
+                List<Incidence> loaded = objectMapper.readValue(file, new TypeReference<List<Incidence>>() {
+                });
+                synchronized (incidencesList) {
+                    incidencesList.clear();
+                    incidencesList.addAll(loaded);
+
+                    // Ajustar el contador de IDs al máximo encontrado
+                    int maxId = 0;
+                    for (Incidence inc : loaded) {
+                        if (inc.getId() > maxId) {
+                            maxId = inc.getId();
+                        }
+                    }
+                    idIncidencia.set(maxId);
+                }
+                System.out.println("Incidencias cargadas desde JSON correctamente.");
+            } catch (IOException e) {
+                System.err.println("Error al cargar incidencias: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Guarda las incidencias en el archivo JSON
+     */
+    private void saveIncidences() {
+        try {
+            synchronized (incidencesList) {
+                objectMapper.writeValue(new File(DATA_JSON_PATH), incidencesList);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar incidencias: " + e.getMessage());
+        }
     }
 
     /**
@@ -74,18 +135,21 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
     public String cmdAlta(String[] parts, String user) {
-        // Si no se proporcionó descripción, solicitar al cliente
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            return "PROMPT_DESCRIPTION";
+            return "Error: Debe proporcionar una descripción para el alta. Uso: ALTA <descripción>";
         }
 
         String description = normalizer.normalizerDescription(parts[1].trim());
 
         synchronized (incidencesList) {
             int newId = idIncidencia.incrementAndGet();
+
             Incidence newIncidence = new Incidence(newId, description);
             newIncidence.setUserIncidence(user);
             incidencesList.add(newIncidence);
+
+            saveIncidences(); // Guardar cambios
+
             return " <- Incidencia con número : " + newId + " Creada correctamente -> ";
         }
     }
@@ -140,6 +204,7 @@ public class CommandController {
                     if (inc.getId() == id) {
                         // NORMALIZAMOS ANTES DE GUARDAR LA NUEVA DESCRIPCION
                         inc.setDescription(normalizer.normalizerDescription(newDetails));
+                        saveIncidences(); // Guardar cambios
                         return "<- Incidencia :" + id + " modificada correctamente - >";
                     }
                 }
@@ -196,6 +261,7 @@ public class CommandController {
                 for (Incidence inc : incidencesList) {
                     if (inc.getId() == id) {
                         inc.setState(State.CLOSED);
+                        saveIncidences(); // Guardar cambios
                         return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
                     }
                 }

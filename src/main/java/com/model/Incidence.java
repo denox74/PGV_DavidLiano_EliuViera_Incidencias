@@ -5,11 +5,14 @@ import java.time.LocalDateTime;
 // Clase para representar una incidencia. ID y descripción. 
 
 public class Incidence {
-    private final int id;
+    private int id;
     private String description;
     private State state;
-    private final LocalDateTime dateTime;
+    private LocalDateTime dateTime;
     private String userIncidence;
+
+    public Incidence() {
+    }
 
     public Incidence(int id, String description) {
         this.id = id;
@@ -26,7 +29,8 @@ public class Incidence {
     public String getDescription() {
         return description;
     }
-      public void setDescription(String description) {
+
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -50,5 +54,4 @@ public class Incidence {
         this.userIncidence = userIncidence;
     }
 
-  
 }
