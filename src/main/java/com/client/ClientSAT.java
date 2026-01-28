@@ -62,21 +62,63 @@ public class ClientSAT {
 
             /**
              * ---------------------------------------------------------------------------
-             * LEEMOS EL MENSAJE DEL SERVIDOR Y LO MOSTRAMOS
+             * LEEMOS EL MENSAJE INICIAL DEL SERVIDOR
              * ---------------------------------------------------------------------------
              */
             String msg = in.readLine();
             System.out.println("Servidor: " + msg);
-            if (msg != null && msg.startsWith("CONECTADO")) {
-                String loginMsg = in.readLine();
-                System.out.println("Servidor: " + loginMsg);
-            } else {
+
+            // Si el servidor está lleno, cerrar conexión
+            if (msg != null && msg.contains("lleno")) {
                 socket.close();
                 return;
             }
 
+            /**
+             * ---------------------------------------------------------------------------
+             * PROCESO DE AUTENTICACIÓN - USUARIO
+             * ---------------------------------------------------------------------------
+             */
+            String userPrompt = in.readLine();
+            System.out.println("Servidor: " + userPrompt);
+            String username = sc.nextLine();
+            out.println(username);
+
+            /**
+             * ---------------------------------------------------------------------------
+             * PROCESO DE AUTENTICACIÓN - PASSWORD
+             * ---------------------------------------------------------------------------
+             */
+            String passPrompt = in.readLine();
+            System.out.println("Servidor: " + passPrompt);
+            String password = sc.nextLine();
+            out.println(password);
+
+            /**
+             * ---------------------------------------------------------------------------
+             * LEER MENSAJE DE BIENVENIDA Y MENÚ DE COMANDOS
+             * ---------------------------------------------------------------------------
+             */
+            String welcomeMsg = in.readLine();
+            System.out.println("Servidor: " + welcomeMsg);
+
+            // Leer el menú de comandos (puede ser múltiples líneas)
+            String menuLine;
+            while ((menuLine = in.readLine()) != null) {
+                System.out.println(menuLine);
+                // Si la línea contiene "SALIR", es la última del menú
+                if (menuLine.contains("SALIR")) {
+                    break;
+                }
+            }
+
+            /**
+             * ---------------------------------------------------------------------------
+             * BUCLE PRINCIPAL DE COMANDOS
+             * ---------------------------------------------------------------------------
+             */
             while (true) {
-                System.out.print("> ");
+                System.out.print("\n> ");
                 String userInput = sc.nextLine();
                 System.out.println("\n");
                 if (userInput == null || userInput.trim().isEmpty()) {
@@ -88,11 +130,12 @@ public class ClientSAT {
                 String resp = in.readLine();
                 System.out.println("Servidor: " + resp);
 
-                if ("SALIR".equalsIgnoreCase(userInput))
+                if ("SALIR".equalsIgnoreCase(userInput)) {
+                    socket.close();
                     break;
-            }
+                }
 
-            socket.close();
+            }
 
         } catch (Exception e) {
             System.out.println("Error Cliente SSL: " + e.getMessage());
