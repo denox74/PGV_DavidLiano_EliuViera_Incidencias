@@ -81,6 +81,15 @@ public class ClientHandler implements Runnable {
 
             }
             out.println("< - Bienvenido " + user + " - > [" + role + "]");
+            out.println("<-- Comandos Disponibles -->");
+            out.println("ALTA <descripción> - Crear nueva incidencia");
+            out.println("LISTAR - Ver todas las incidencias");
+            out.println("EDITAR <id> <nueva_descripción> - Modificar una incidencia");
+            out.println("CERRAR <id> - Cerrar una incidencia");
+            if (role == Role.ADMIN) {
+                out.println("CLIENTES - Ver lista de clientes conectados");
+            }
+            out.println("SALIR - Desconectar del servidor");
 
             /**
              * --------------------------------------------------------------------------------------------------
@@ -93,7 +102,6 @@ public class ClientHandler implements Runnable {
             while ((line = in.readLine()) != null) {
                 // INSTANCIAMOS TODAS LAS FUNCIONES DEL CLIENTE DESDE EL CONTROLLADOR
                 String cmd = controller.processCommand(line.trim(), user, role);
-
                 out.println(cmd);
 
                 if (line.trim().equalsIgnoreCase("SALIR")) {

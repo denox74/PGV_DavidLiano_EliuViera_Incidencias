@@ -33,7 +33,7 @@ public class CommandController {
 
         // la expresion \\s+, 2 es para separar uno o mas espacios en blanco con un
         // limite de division de 2 partes
-        String[] part = command.toUpperCase().split("\\s+", 2);
+        String[] part = command.trim().toUpperCase().split("\\s+", 2);
         String cmd = part[0];
         /**
          * --------------------------------------------------------------------------------
@@ -57,10 +57,6 @@ public class CommandController {
 
             case "CERRAR":
                 return cmdCerrar(part);
-
-            case "AYUDA":
-                return cmdAyuda(role);
-
             case "SALIR":
                 return "Desconectando .....";
 
@@ -205,23 +201,4 @@ public class CommandController {
 
     }
 
-    /**
-     * --------------------------------------------------------------------------------------
-     * REALIZAMOS LA FUNCIÓN AYUDA
-     * --------------------------------------------------------------------------------------
-     */
-    public String cmdAyuda(Role role) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<-- Comandos Disponibles -->" +
-                "ALTA <descripción> - Crear nueva incidencia" +
-                "LISTAR - Ver todas las incidencias" +
-                "EDITAR <id> <nueva_descripción> - Modificar una incidencia" +
-                "CERRAR <id> - Cerrar una incidencia" +
-                "AYUDA - Mostrar este menú" +
-                "SALIR - Desconectar del servidor");
-        if (role == Role.ADMIN) {
-            sb.append("CLIENTES - Ver clientes conectados (solo admin)");
-        }
-        return sb.toString();
-    }
 }
