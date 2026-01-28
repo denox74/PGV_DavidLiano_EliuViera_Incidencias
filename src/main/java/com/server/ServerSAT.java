@@ -43,7 +43,7 @@ public class ServerSAT {
 
         ConcurrentHashMap<Integer, ClientConnected> clients = new ConcurrentHashMap<>();
         List<Incidence> incidences = new ArrayList<>();
-        AtomicInteger idIncidence = new AtomicInteger(1); // CONTADOR PARA ID DE INCIDENCIAS EMPEZANDO POR 1
+        AtomicInteger idIncidence = new AtomicInteger(0); // CONTADOR PARA ID DE INCIDENCIAS EMPEZANDO POR 1
         AtomicInteger idClientCounter = new AtomicInteger(1); // CONTADOR PARA ID DE CLIENTES EMPEZANDO POR 1
 
         System.out.println("ServidAT (SSL) arrancado en puerto " + PORT);
