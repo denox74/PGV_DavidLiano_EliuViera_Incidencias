@@ -104,6 +104,7 @@ public class ClientHandler implements Runnable {
                 // INSTANCIAMOS TODAS LAS FUNCIONES DEL CLIENTE DESDE EL CONTROLLADOR
                 String cmd = controller.processCommand(line.trim(), user, role);
                 out.println(cmd);
+                out.println("___FIN___"); // Marcador de fin de respuesta
 
                 if (line.trim().equalsIgnoreCase("SALIR")) {
                     System.out.println("Cliente desconectado");

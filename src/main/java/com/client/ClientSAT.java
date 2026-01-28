@@ -131,12 +131,18 @@ public class ClientSAT {
                 }
                 out.println(userInput);
 
-                String resp = in.readLine();
+                String resp;
+                while ((resp = in.readLine()) != null) {
+                    if (resp.equals("___FIN___")) {
+                        break;
+                    }
+                    System.out.println("Servidor: " + resp);
+                }
+
                 if (resp == null) {
-                    System.out.println("Servidor ha cerrado la conexión.");
+                    System.out.println("El servidor ha cerrado la conexión.");
                     break;
                 }
-                System.out.println("Servidor: " + resp);
 
                 if ("SALIR".equalsIgnoreCase(userInput)) {
                     socket.close();
