@@ -57,6 +57,7 @@ public class CommandController {
 
             case "CERRAR":
                 return cmdCerrar(part);
+
             case "AYUDA":
                 return cmdAyuda(role);
 
@@ -210,19 +211,17 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
     public String cmdAyuda(Role role) {
-        StringBuilder sb = new StringBuilder("<-- Comandos Disponibles -->\n");
-        sb.append("ALTA <descripción> - Crear nueva incidencia\n");
-        sb.append("LISTAR - Ver todas las incidencias\n");
-        sb.append("EDITAR <id> <nueva_descripción> - Modificar una incidencia\n");
-        sb.append("CERRAR <id> - Cerrar una incidencia\n");
-
+        StringBuilder sb = new StringBuilder();
+        sb.append("<-- Comandos Disponibles -->" +
+                "ALTA <descripción> - Crear nueva incidencia" +
+                "LISTAR - Ver todas las incidencias" +
+                "EDITAR <id> <nueva_descripción> - Modificar una incidencia" +
+                "CERRAR <id> - Cerrar una incidencia" +
+                "AYUDA - Mostrar este menú" +
+                "SALIR - Desconectar del servidor");
         if (role == Role.ADMIN) {
-            sb.append("CLIENTES - Ver clientes conectados (solo admin)\n");
+            sb.append("CLIENTES - Ver clientes conectados (solo admin)");
         }
-
-        sb.append("AYUDA - Mostrar este menú\n");
-        sb.append("SALIR - Desconectar del servidor\n");
-
         return sb.toString();
     }
 }
