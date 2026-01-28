@@ -102,9 +102,9 @@ public class CommandController {
                 return "<- No tiene ninguna incidencia en la lista ->\n";
             }
 
-            StringBuilder sb = new StringBuilder("<- Listado de incidencias ->");
+            StringBuilder sb = new StringBuilder("<- Listado de incidencias ->\n");
             for (Incidence inc : incidencesList) {
-                sb.append(String.format("[ID:%d] %s - Estado:%s - Usuario:%s - Fecha:%s\n",
+                sb.append(String.format("[ID:%d] %s - Usuario:%s - Fecha:%s - Estado:%s\n",
                         inc.getId(),
                         inc.getDescription(),
                         inc.getUserIncidence(),
