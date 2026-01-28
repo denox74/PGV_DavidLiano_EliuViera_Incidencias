@@ -83,6 +83,7 @@ public class ClientSAT {
                     System.out.println("Comando vacio - Escriba AYUDA para ver los comandos");
                     continue;
                 }
+                
                 out.println(userInput);
 
                 String resp = in.readLine();
