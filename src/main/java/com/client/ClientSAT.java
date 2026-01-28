@@ -74,33 +74,37 @@ public class ClientSAT {
                 return;
             }
 
-            /**
-             * ---------------------------------------------------------------------------
-             * PROCESO DE AUTENTICACIÓN - USUARIO
-             * ---------------------------------------------------------------------------
-             */
-            String userPrompt = in.readLine();
-            System.out.println("Servidor: " + userPrompt);
-            String username = sc.nextLine();
-            out.println(username);
+            String serverResponse = msg;
 
-            /**
-             * ---------------------------------------------------------------------------
-             * PROCESO DE AUTENTICACIÓN - PASSWORD
-             * ---------------------------------------------------------------------------
-             */
-            String passPrompt = in.readLine();
-            System.out.println("Servidor: " + passPrompt);
-            String password = sc.nextLine();
-            out.println(password);
+            while (serverResponse != null) {
+                System.out.println("Servidor: " + serverResponse);
 
-            /**
-             * ---------------------------------------------------------------------------
-             * LEER MENSAJE DE BIENVENIDA Y MENÚ DE COMANDOS
-             * ---------------------------------------------------------------------------
-             */
-            String welcomeMsg = in.readLine();
-            System.out.println("Servidor: " + welcomeMsg);
+                // Si es un prompt de Usuario
+                if (serverResponse.contains("Usuario")) {
+                    System.out.print("Introduzca su usuario > ");
+                    String username = sc.nextLine();
+                    out.println(username);
+                }
+                // Si es un prompt de Password
+                else if (serverResponse.contains("Password")) {
+                    System.out.print("Introduzca su contraseña > ");
+                    String password = sc.nextLine();
+                    out.println(password);
+                }
+                // Si la autenticación fue exitosa
+                else if (serverResponse.contains("Bienvenido")) {
+                    break;
+                }
+
+                // Leemos el siguiente mensaje del servidor
+                serverResponse = in.readLine();
+            }
+
+            if (serverResponse == null) {
+                System.out.println("Servidor cerró la conexión.");
+                socket.close();
+                return;
+            }
 
             // Leer el menú de comandos (puede ser múltiples líneas)
             String menuLine;
@@ -128,6 +132,10 @@ public class ClientSAT {
                 out.println(userInput);
 
                 String resp = in.readLine();
+                if (resp == null) {
+                    System.out.println("Servidor ha cerrado la conexión.");
+                    break;
+                }
                 System.out.println("Servidor: " + resp);
 
                 if ("SALIR".equalsIgnoreCase(userInput)) {

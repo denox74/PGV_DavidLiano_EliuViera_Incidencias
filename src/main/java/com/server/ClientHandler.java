@@ -59,15 +59,16 @@ public class ClientHandler implements Runnable {
                         new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 PrintWriter out = new PrintWriter(
                         new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);) {
-            out.println("CONECTADO, Cliente ID: " + idClient);
             /**
              * --------------------------------------------------------------------------------
              * AUTENTIFICAMOS AL CLIENTE
              * --------------------------------------------------------------------------------
              */
-            if (!authentication(in, out)) {
-                out.println("Error al autentificarse");
-                return;
+            while (true) {
+                if (authentication(in, out)) {
+                    break;
+                }
+                out.println("Error de credenciales. Inténtelo de nuevo.");
             }
 
             /**
@@ -127,14 +128,14 @@ public class ClientHandler implements Runnable {
         out.println("<LOGIN> : Usuario");
         String usuario = in.readLine();
         if (usuario == null) {
-            return false;
+            throw new IOException("Cliente cerró conexión durante login");
         }
 
         // COMPROBAMOS LA CONTRASEÑA
         out.println("<LOGIN> : Password");
         String pass = in.readLine();
         if (pass == null) {
-            return false;
+            throw new IOException("Cliente cerró conexión durante login");
         }
 
         AuthService.authResult result = AuthService.autentication(usuario, pass);
