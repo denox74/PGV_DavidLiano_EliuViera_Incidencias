@@ -67,7 +67,10 @@ public class ClientSAT {
              */
             String msg = in.readLine();
             System.out.println("Servidor: " + msg);
-            if (msg != null && msg.toLowerCase().equals("OCUPADO")) {
+            if (msg != null && msg.startsWith("CONECTADO")) {
+                String loginMsg = in.readLine();
+                System.out.println("Servidor: " + loginMsg);
+            } else {
                 socket.close();
                 return;
             }
