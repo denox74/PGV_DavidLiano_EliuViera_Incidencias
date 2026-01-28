@@ -7,18 +7,21 @@ import com.model.ClientConnected;
 import com.model.Incidence;
 import com.model.Role;
 import com.model.State;
+import com.util.Normalizer;
 
 public class CommandController {
 
     private final AtomicInteger idIncidencia;
     private final ConcurrentHashMap<Integer, ClientConnected> client;
     private final List<Incidence> incidencesList;
+    private final Normalizer normalizer;
 
     public CommandController(ConcurrentHashMap<Integer, ClientConnected> client, AtomicInteger idIncidencia,
             List<Incidence> incidencesList) {
         this.client = client;
         this.idIncidencia = idIncidencia;
         this.incidencesList = incidencesList;
+        this.normalizer = new Normalizer();
     }
 
     /**
@@ -67,14 +70,16 @@ public class CommandController {
 
     /**
      * --------------------------------------------------------------------------------------
-     * REALIZAMOS LA FUNCIÓN ALTA DE UNA INCIDENCIA Y LA INCREMENTAMOS
+     * REALIZAMOS LA FUNCIÓN ALTA DE UNA INCIDENCIA Y LA
+     * INCREMENTAMOS
      * --------------------------------------------------------------------------------------
      */
     public String cmdAlta(String[] parts, String user) {
 
         synchronized (incidencesList) {
             int newId = idIncidencia.incrementAndGet();
-            Incidence newIncidence = new Incidence(newId, parts[1].trim());
+            // NORMALIZAMOS LA DESCRIPCION
+            Incidence newIncidence = new Incidence(newId, normalizer.normalizerDescription(parts[1].trim()));
             newIncidence.setUserIncidence(user);
             incidencesList.add(newIncidence);
             return " <- Incidencia con número : " + newId + " Creada correctamente -> ";
@@ -124,7 +129,8 @@ public class CommandController {
 
                 for (Incidence inc : incidencesList) {
                     if (inc.getId() == id) {
-                        inc.setDescription(newDetails);
+                        // NORMALIZAMOS ANTES DE GUARDAR LA NUEVA DESCRIPCION
+                        inc.setDescription(normalizer.normalizerDescription(newDetails));
                         return "<- Incidencia :" + id + "modificada correctamente - >";
                     }
                 }
