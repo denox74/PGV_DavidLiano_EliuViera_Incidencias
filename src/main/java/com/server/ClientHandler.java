@@ -105,11 +105,7 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             System.out.println("Error en el hilo del cliente: " + e.getMessage());
         } finally {
-            try {
-                socket.close();
-            } catch (Exception ignored) {
-            }
-            semaphore.release(); // Liberamos la plaza del semaforo
+            cleanSemaphore();
         }
     }
 
@@ -142,6 +138,32 @@ public class ClientHandler implements Runnable {
         }
         return false;
 
+    }
+
+    /**
+     * --------------------------------------------------------------------------------------------------
+     * REALIZAMOS LA LIMPIEZA DEL SEMAFORO AL SALIR UN CLIENTE Y LO ELIMINAMOS
+     * --------------------------------------------------------------------------------------------------
+     */
+
+    public void cleanSemaphore() {
+        if (clientInfo != null) {
+            synchronized (clients) {
+                clients.remove(idClient);
+                System.out.println("Cliente ID: " + idClient + " desconectado");
+            }
+        }
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            System.out.println("Cliente desconectado");
+
+        } catch (Exception e) {
+            System.out.println("Error al cerrar el socket: " + e.getMessage());
+        }
+        semaphore.release();
+        System.out.println("Quedan " + semaphore.availablePermits() + " clientes");
     }
 
 }

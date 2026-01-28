@@ -50,12 +50,7 @@ public class AuthService {
         public void setRol(Role rol) {
             this.rol = rol;
         }
-        
 
-      
-
-      
-        
     }
 
     /**
@@ -67,7 +62,7 @@ public class AuthService {
 
         authResult result = new authResult();
 
-        //NORMALIZACION DEL RESULTADO SIMPLE PARA EVITAR LOS SALTOS DE LINEA Y TAB
+        // NORMALIZACION DEL RESULTADO SIMPLE PARA EVITAR LOS SALTOS DE LINEA Y TAB
         if (user != null) {
             user = user.trim();
         }
@@ -75,14 +70,14 @@ public class AuthService {
             password = password.trim();
         }
 
-        //SEGURIDAD SIMPLE 
+        // SEGURIDAD SIMPLE
         if (user == null || password == null) {
             result.login = false;
             result.error = "Usuario o contraseña nulos";
             return result;
         }
 
-        //CREAMOS EL USUARIO ADMIN
+        // CREAMOS EL USUARIO ADMIN
         if ("admin".equals(user) && "admin123".equals(password)) {
             result.login = true;
             result.user = "admin";
@@ -91,7 +86,7 @@ public class AuthService {
             return result;
         }
 
-        //CREAMOS AL TECNICO 
+        // CREAMOS AL TECNICO
         if ("tecnico".equals(user) && "tecnico123".equals(password)) {
             result.login = true;
             result.user = "tecnico";
@@ -99,10 +94,10 @@ public class AuthService {
             result.token = generateToken();
             return result;
         }
-         //CREAMOS AL CLIENTE 
+        // CREAMOS AL CLIENTE
         if ("cliente".equals(user) && "cliente123".equals(password)) {
             result.login = true;
-            result.user = "tecnico";
+            result.user = "cliente";
             result.rol = Role.CLIENT;
             result.token = generateToken();
             return result;

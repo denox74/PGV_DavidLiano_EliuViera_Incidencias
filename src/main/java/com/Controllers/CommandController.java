@@ -43,11 +43,11 @@ public class CommandController {
          */
 
         switch (cmd) {
-            case "LOGIN":
 
             case "ALTA":
                 return cmdAlta(part, user);
             case "LISTAR":
+                return cmdLista();
 
             case "EDITAR":
                 return cmdEditar(part);
@@ -57,6 +57,8 @@ public class CommandController {
 
             case "CERRAR":
                 return cmdCerrar(part);
+            case "AYUDA":
+                return cmdAyuda(role);
 
             case "SALIR":
                 return "Desconectando .....";
@@ -78,8 +80,8 @@ public class CommandController {
 
         synchronized (incidencesList) {
             int newId = idIncidencia.incrementAndGet();
-            // NORMALIZAMOS LA DESCRIPCION
-            Incidence newIncidence = new Incidence(newId, normalizer.normalizerDescription(parts[1].trim()));
+
+            Incidence newIncidence = new Incidence(newId, parts[1].trim());
             newIncidence.setUserIncidence(user);
             incidencesList.add(newIncidence);
             return " <- Incidencia con número : " + newId + " Creada correctamente -> ";
@@ -104,7 +106,8 @@ public class CommandController {
                         inc.getId(),
                         inc.getDescription(),
                         inc.getUserIncidence(),
-                        inc.getDateTime()));
+                        inc.getDateTime(),
+                        inc.getState()));
             }
             return sb.toString();
         }
@@ -187,8 +190,8 @@ public class CommandController {
                 for (Incidence inc : incidencesList) {
                     if (inc.getId() == id) {
                         inc.setState(State.CLOSED);
+                        return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
                     }
-                    return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
 
                 }
 
@@ -199,5 +202,27 @@ public class CommandController {
             return "El ID tiene que ser númerico";
         }
 
+    }
+
+    /**
+     * --------------------------------------------------------------------------------------
+     * REALIZAMOS LA FUNCIÓN AYUDA
+     * --------------------------------------------------------------------------------------
+     */
+    public String cmdAyuda(Role role) {
+        StringBuilder sb = new StringBuilder("<-- Comandos Disponibles -->\n");
+        sb.append("ALTA <descripción> - Crear nueva incidencia\n");
+        sb.append("LISTAR - Ver todas las incidencias\n");
+        sb.append("EDITAR <id> <nueva_descripción> - Modificar una incidencia\n");
+        sb.append("CERRAR <id> - Cerrar una incidencia\n");
+
+        if (role == Role.ADMIN) {
+            sb.append("CLIENTES - Ver clientes conectados (solo admin)\n");
+        }
+
+        sb.append("AYUDA - Mostrar este menú\n");
+        sb.append("SALIR - Desconectar del servidor\n");
+
+        return sb.toString();
     }
 }

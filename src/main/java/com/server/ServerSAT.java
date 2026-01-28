@@ -48,9 +48,12 @@ public class ServerSAT {
 
         System.out.println("ServidAT (SSL) arrancado en puerto " + PORT);
 
+        SSLServerSocket serverSocket = null;
+
         try {
+
             SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-            SSLServerSocket serverSocket = (SSLServerSocket) factory.createServerSocket(PORT);
+            serverSocket = (SSLServerSocket) factory.createServerSocket(PORT);
 
             while (true) {
                 SSLSocket socket = (SSLSocket) serverSocket.accept();
@@ -85,6 +88,15 @@ public class ServerSAT {
 
         } catch (Exception e) {
             System.out.println("Error Servidor SSL: " + e);
+        } finally {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                    System.out.println("Servidor cerrado correctamente");
+                } catch (Exception e) {
+                    System.out.println("Error al cerrar el servidor: " + e);
+                }
+            }
         }
     }
 }
