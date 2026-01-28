@@ -74,6 +74,9 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
     public String cmdAlta(String[] parts, String user) {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            return "Error: Debe proporcionar una descripción para el alta. Uso: ALTA <descripción>";
+        }
 
         synchronized (incidencesList) {
             int newId = idIncidencia.incrementAndGet();
@@ -117,30 +120,32 @@ public class CommandController {
      * --------------------------------------------------------------------------------------
      */
     public String cmdEditar(String[] part) {
+        if (part.length < 2) {
+            return "Error: Uso: EDITAR <id> <nueva_descripción>";
+        }
 
         String[] detailsPart = part[1].split("\\s+", 2);
+        if (detailsPart.length < 2) {
+            return "Error: Debe proporcionar tanto el ID como la nueva descripción. Uso: EDITAR <id> <nueva_descripción>";
+        }
 
         try {
-
             int id = Integer.valueOf(detailsPart[0]);
             String newDetails = detailsPart[1].trim();
 
             synchronized (incidencesList) {
-
                 for (Incidence inc : incidencesList) {
                     if (inc.getId() == id) {
                         // NORMALIZAMOS ANTES DE GUARDAR LA NUEVA DESCRIPCION
                         inc.setDescription(normalizer.normalizerDescription(newDetails));
-                        return "<- Incidencia :" + id + "modificada correctamente - >";
+                        return "<- Incidencia :" + id + " modificada correctamente - >";
                     }
                 }
-
             }
             return "<- Incidencia : " + id + " no encontrada";
         } catch (NumberFormatException e) {
             return "La id tiene que ser númerica";
         }
-
     }
 
     /**
@@ -178,9 +183,11 @@ public class CommandController {
      */
 
     public String cmdCerrar(String[] parts) {
+        if (parts.length < 2) {
+            return "Error: Debe proporcionar el ID de la incidencia. Uso: CERRAR <id>";
+        }
 
         try {
-
             int id = Integer.valueOf(parts[1].trim());
 
             synchronized (incidencesList) {
@@ -189,16 +196,13 @@ public class CommandController {
                         inc.setState(State.CLOSED);
                         return "< - Incidencia : " + id + " se ha cerrado correctamente - >";
                     }
-
                 }
-
             }
-            return "No se a podido encontrar la incidencia : " + id;
+            return "No se ha podido encontrar la incidencia : " + id;
 
         } catch (NumberFormatException e) {
             return "El ID tiene que ser númerico";
         }
-
     }
 
 }

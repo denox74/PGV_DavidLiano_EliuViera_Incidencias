@@ -66,10 +66,10 @@ public class ClientSAT {
              * ---------------------------------------------------------------------------
              */
             String msg = in.readLine();
-            System.out.println("Servidor: " + msg);
 
             // Si el servidor está lleno, cerrar conexión
             if (msg != null && msg.contains("lleno")) {
+                System.out.println("Servidor: " + msg);
                 socket.close();
                 return;
             }
