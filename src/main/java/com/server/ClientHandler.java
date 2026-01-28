@@ -107,17 +107,21 @@ public class ClientHandler implements Runnable {
                 // Si el comando requiere una descripción interactiva
                 if ("PROMPT_DESCRIPTION".equals(cmd)) {
                     out.println("Ingrese la descripción de la incidencia:");
+                    out.println("___FIN___"); // Marcador de fin de respuesta
                     String description = in.readLine();
 
                     if (description != null && !description.trim().isEmpty()) {
                         // Procesar ALTA con la descripción proporcionada
                         cmd = controller.processCommand("ALTA " + description.trim(), user, role);
                         out.println(cmd);
+                        out.println("___FIN___"); // Marcador de fin de respuesta
                     } else {
                         out.println("Error: Descripción vacía. Incidencia no creada.");
+                        out.println("___FIN___"); // Marcador de fin de respuesta
                     }
                 } else {
                     out.println(cmd);
+                    out.println("___FIN___"); // Marcador de fin de respuesta
                 }
 
                 if (line.trim().equalsIgnoreCase("SALIR")) {

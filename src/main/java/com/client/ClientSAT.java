@@ -131,28 +131,40 @@ public class ClientSAT {
                 }
                 out.println(userInput);
 
-                String resp = in.readLine();
-                if (resp == null) {
-                    System.out.println("Servidor ha cerrado la conexión.");
-                    break;
-                }
+                // Leer respuestas del servidor hasta el marcador de fin
+                String resp;
+                boolean isPromptingDescription = false;
 
-                // Si el servidor está pidiendo la descripción de forma interactiva
-                if (resp.contains("Ingrese la descripción")) {
-                    // System.out.println("Servidor: " + resp);
-                    System.out.print("Descripción > ");
-                    String description = sc.nextLine();
-                    out.println(description);
-
-                    // Leer la respuesta final del servidor
-                    resp = in.readLine();
-                    if (resp == null) {
-                        System.out.println("Servidor ha cerrado la conexión.");
+                while ((resp = in.readLine()) != null) {
+                    if (resp.equals("___FIN___")) {
                         break;
+                    }
+
+                    // Si el servidor está pidiendo la descripción
+                    if (resp.contains("Ingrese la descripción")) {
+                        System.out.println("Servidor: " + resp);
+                        System.out.print("Descripción > ");
+                        String description = sc.nextLine();
+                        out.println(description);
+                        isPromptingDescription = true;
+
+                        // Leer la respuesta final después de enviar la descripción
+                        while ((resp = in.readLine()) != null) {
+                            if (resp.equals("___FIN___")) {
+                                break;
+                            }
+                            System.out.println("Servidor: " + resp);
+                        }
+                        break;
+                    } else {
+                        System.out.println("Servidor: " + resp);
                     }
                 }
 
-                System.out.println("Servidor: " + resp);
+                if (resp == null) {
+                    System.out.println("El servidor ha cerrado la conexión.");
+                    break;
+                }
 
                 if ("SALIR".equalsIgnoreCase(userInput)) {
                     socket.close();
