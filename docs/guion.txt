@@ -1,0 +1,81 @@
+# Documentación Detallada del Proyecto: Sistema de Gestión de Incidencias (SAT)
+
+## 1. Introducción al Proyecto
+Este proyecto consiste en el desarrollo de una aplicación **Cliente-Servidor Segura y Concurrente** diseñada para gestionar servicios de asistencia técnica (SAT). El objetivo principal es permitir que múltiples técnicos (clientes) se conecten simultáneamente a un servidor central para registrar, consultar y gestionar incidencias de forma eficiente.
+
+**Características principales:**
+*   **Concurrencia:** Capacidad para atender a varios usuarios al mismo tiempo mediante hilos (Threads).
+*   **Seguridad:** Toda la comunicación está cifrada mediante protocolos **SSL/TLS**.
+*   **Persistencia:** Los datos no se pierden al apagar el servidor, ya que se almacenan en archivos **JSON**.
+*   **Control de Acceso:** Sistema de login con roles diferenciados (Administrador y Usuario técnico).
+*   **Integridad de Datos:** Validación y normalización de entradas para evitar errores de sistema o ataques básicos.
+
+---
+
+## 2. Descripción General de las Clases
+El proyecto se organiza en varios paquetes según su responsabilidad:
+*   **Servidor y Red:** `ServerSAT` (arranque) y `ClientHandler` (gestión de cada cliente).
+*   **Lógica de Negocio:** `CommandController` (procesamiento de comandos) y `Normalizer` (limpieza de datos).
+*   **Seguridad:** `AuthService` (validación de usuarios).
+*   **Cliente:** `ClientSAT` (interfaz de usuario por consola).
+*   **Modelos:** Clases que definen los objetos de datos como `Incidence`, `User` y `ClientConnected`.
+
+---
+
+## 3. Explicación Detallada por Clase
+
+### A. Capa de Servidor
+
+#### `ServerSAT.java` (El Corazón del Sistema)
+Es la clase que inicia el servicio. Sus funciones principales son:
+*   **Configuración SSL:** Establece mediante `System.setProperty` la ruta del almacén de llaves (`keystore`) y su contraseña para habilitar el cifrado.
+*   **Control de Aforo (Semáforo):** Instancia un `Semaphore(MAX_CLIENTS)` que actúa como un contador de seguridad. Solo permite 10 conexiones simultáneas; si llega la número 11, el servidor envía un mensaje de "Servidor lleno" y cierra el socket inmediatamente.
+*   **Gestión de Hilos:** En un bucle infinito, espera conexiones con `serverSocket.accept()`, crea un nuevo hilo `ClientHandler` para cada cliente y lo inicia con `.start()`.
+
+#### `ClientHandler.java` (El Gestor de Conversaciones)
+Cada cliente tiene "su propia versión" de esta clase ejecutándose en un hilo.
+*   **`run()`:** Orquesta toda la vida del cliente en el servidor. Primero obliga al login y luego entra en un bucle esperando comandos hasta que el cliente envía "SALIR".
+*   **`authentication()`:** Implementa el protocolo de login. Pide el nombre de usuario y luego la contraseña. Llama al `AuthService` para validar los datos.
+*   **`cleanSemaphore()`:** Función crítica que se ejecuta al final (en el bloque `finally`). Se encarga de eliminar al cliente de la lista de conectados, cerrar el socket de forma segura y, lo más importante, liberar el permiso del semáforo para que otro técnico pueda entrar.
+
+---
+
+### B. Lógica y Procesamiento
+
+#### `CommandController.java` (El Centro de Operaciones)
+Esta clase contiene la lógica real de qué hace cada comando.
+*   **`loadIncidences()` / `saveIncidences()`:** Utilizan la librería **Jackson**. La carga se hace al arrancar el controlador (lee el archivo `data.json`) y el guardado ocurre automáticamente cada vez que se crea, edita o cierra una incidencia.
+*   **`processCommand()`:** Recibe la cadena de texto del cliente, la limpia y determina qué función llamar.
+*   **`cmdAlta()`**: Se encarga de generar un nuevo objeto `Incidence`, asignarle un ID único usando un `AtomicInteger` (seguro para multihilo), ponerle fecha/hora actual y guardarlo.
+*   **`cmdEditar()` / `cmdCerrar()`**: Reciben un ID, buscan en la lista sincronizada la incidencia correspondiente y modifican sus atributos (descripción o estado).
+
+#### `Normalizer.java` (El Filtro de Seguridad)
+*   **`normalizerDescription()`:** Recibe un texto y aplica una serie de filtros:
+    1.  Elimina espacios en blanco innecesarios (`trim`).
+    2.  Comprueba que no esté vacío ni supere los 200 caracteres.
+    3.  Aplica una **Expresión Regular (Regex)** para permitir solo letras, números y signos de puntuación básicos, rechazando cualquier carácter que pudiera ser peligroso.
+
+---
+
+### C. Seguridad
+
+#### `AuthService.java` (El Validador)
+*   **`autentication()`:** Es un método estático que carga el archivo `users.json`. Compara el usuario y contraseña recibidos con los almacenados. Si coinciden, crea un objeto `authResult` que contiene el Rol (ADMIN/USER) y genera un **Token único (UUID)** para la sesión.
+
+---
+
+### D. Capa de Cliente
+
+#### `ClientSAT.java` (La Interfaz de Usuario)
+*   **Configuración Truststore:** Configura el certificado necesario para confiar en la identidad del servidor SSL.
+*   **Gestión de Entrada/Salida:** Utiliza `BufferedReader` y `PrintWriter` con codificación **UTF-8** para asegurar que los acentos y la "ñ" se vean correctamente.
+*   **Bucle de Interacción:** Muestra el prompt `> ` al usuario, envía el texto al servidor y espera la respuesta. Tiene una lógica especial para detectar si el servidor le pide una descripción adicional (en el comando ALTA) para hacer la experiencia más fluida.
+
+---
+
+### E. Modelos de Datos
+
+*   **`Incidence.java`**: Define qué es una incidencia (ID, descripción, autor, fecha, estado).
+*   **`User.java`**: Define la estructura de un usuario para el login.
+*   **`Role.java` (`enum`)**: Define los roles fijos: `ADMIN` y `USER`.
+*   **`State.java` (`enum`)**: Define los estados de una incidencia: `OPEN` y `CLOSED`.
